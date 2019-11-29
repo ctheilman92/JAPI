@@ -1,0 +1,11 @@
+﻿###### DEPENDENCY INJECTION REPOSITORY ROADMAP ######
+---------------------------------------------------
+## JAPIService (BASE) - (IMP) IRESTRepository (for RestSharp request methods)
+#### DEPENDENCY: IJAPIAuthenticateRepository
+###### Derived Classes : service level classes for each JAPI.Repo TYPE
+
+## JAPIRepositoryBase (BASE) - no interface
+#### DEPENDENCY: JClient					//this allows us to manage session level singleton instances for session based implementation - or individual service level instances for basic auth implementation
+###### Derived Classes - (IMP) IJAPIAuthenticateRepository
+######## 1. JAPISessionRepository			//(SESSION-PERSISTANT singleton JClient object implementation - 1 instance (session) : Many restsharp requests)
+######## 2. JAPIBasicAuthRepository			//(NON-PERISTENT request renewable JClient object implemenation - 1 instance (request) : Many restsharp requests)
