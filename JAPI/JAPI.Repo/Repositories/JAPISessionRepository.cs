@@ -22,7 +22,7 @@ namespace JAPI.Repo.Repositories
         private const string AUTHENTICATE_TAG = "/login";
 
         private RestClient GetAuthenticateRestClient()
-            => new RestClient(new Uri($"{jClient.BaseURL} + {AUTHENTICATE_TAG}"));
+            => new RestClient(new Uri($"{jClient.BaseURL}{AUTHENTICATE_TAG}"));
 
         private RestResponseCookie GetSessionCookie()
         {
@@ -82,7 +82,9 @@ namespace JAPI.Repo.Repositories
                 Method = method
             };
 
-            req.AddHeader("JSESSIONID", jClient.SessionCookie.Value);
+            if (jClient.SessionCookie != null && !string.IsNullOrEmpty(jClient.SessionCookie.Value))
+                req.AddParameter("JSESSIONID", jClient.SessionCookie.Value, ParameterType.Cookie);
+
             if (requestObject != null && method == Method.POST)
             {
                 var jsonObject = JsonConvert.SerializeObject(requestObject);

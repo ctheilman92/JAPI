@@ -1,4 +1,7 @@
-﻿using System;
+﻿using IniParser;
+using IniParser.Model;
+using JAPI.Repo.Repositories;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -27,18 +30,41 @@ namespace JAPI.Repo
 
         public static JClient GetJClientINI()
         {
-            string configPath = @"C:\Users\cameron.heilman\Documents\WR\JAPI_REPO\japi\JAPI\JAPI.Repo\JAPI.ini";
+            string configPath = @"C:\Users\cameron.heilman\Documents\WR\GIT_JAPI\japi\JAPI\JAPI.Repo\JASPER.ini";
             //string startupPath = Path.Combine(Environment.CurrentDirectory, "JAPI.ini");
-            var config = new INI.IniFile(configPath);
 
-            return new JClient
+            using (var sr = new StreamReader(configPath))
             {
-                Username = config.IniReadValue("JasperConfiguration", "USERNAME"),
-                Password = config.IniReadValue("JasperConfiguration", "PASSWORD"),
-                Organization = config.IniReadValue("JasperConfiguration", "DEFAULT_ORG"),
-                Timeout = Convert.ToInt32(config.IniReadValue("JasperConfiguration", "CURL_TIMEOUT")),
-                BaseURL = config.IniReadValue("JasperConfiguration", "BASE_SERVER_URL")
-            };
+                var parser = new FileIniDataParser();
+                IniData data = parser.ReadData(sr);
+
+                return new JClient
+                {
+                    Username = data["JasperConfiguration"]["USERNAME"],
+                    Password = data["JasperConfiguration"]["PASSWORD"],
+                    Organization = data["JasperConfiguration"]["DEFAULT_ORG"],
+                    Timeout = Convert.ToInt32(data["JasperConfiguration"]["CURL_TIMEOUT"]),
+                    BaseURL = data["JasperConfiguration"]["BASE_SERVER_URL"].TrimEnd('/')
+                };
+            }
         }
+    }
+
+    public static class RepositoryInjector
+    {
+        private static JClient _jClient
+        {
+            get
+            {
+                return Utility.GetJClientINI();
+            }
+        }
+
+        public static T GetInjector<T>(JClient jclient) where T : JAPIRepositoryBase
+            => (T)Activator.CreateInstance(typeof(T), new object[] { jclient });
+
+        public static T GetInjector<T>() where T : JAPIRepositoryBase
+            => (T)Activator.CreateInstance(typeof(T), new object[] { _jClient });
+
     }
 }

@@ -39,15 +39,7 @@ namespace JAPI.App
             {
                 if (_repositoryInjector == null)
                 {
-                    _repositoryInjector = new JAPISessionRepository(
-                        new JClient()
-                        {
-                            Username = ConfigurationManager.AppSettings["USERNAME"],
-                            Password = ConfigurationManager.AppSettings["PASSWORD"],
-                            Organization = ConfigurationManager.AppSettings["DEFAULT_ORG"],
-                            BaseURL = ConfigurationManager.AppSettings["BASE_SERVER_URL"],
-                            Timeout = 30 * 1000
-                        });
+                    _repositoryInjector = RepositoryInjector.GetInjector<JAPISessionRepository>();
                 }
                 return _repositoryInjector;
             }
@@ -60,7 +52,7 @@ namespace JAPI.App
 
             DataContext = this;
             InitializeComponent();
-            //reportsSelectionEnable(false);
+            reportsSelectionEnable(false);
 
         }
 
@@ -102,12 +94,14 @@ namespace JAPI.App
         private async void InitOrgDataAsync()
         {
             var newOrgList = new List<Org>();
+            var orgService = new OrganizationService(repositoryInjector);
+
             foreach (var orgId in defaultOrgList)
             {
                 try
                 {
                     //FIX THIS IF YOUF WANT TO CONTINUE
-                    var jOrg = await new OrganizationService().GetOrg(orgId);
+                    var jOrg = await orgService.GetOrg(orgId);
                     newOrgList.Add(jOrg);
                 }
                 catch (Exception ex)
@@ -133,13 +127,13 @@ namespace JAPI.App
             }
 
             organizations.Clear();
-            organizations.AddRange(newOrgList);
+            organizations.AddRange(newOrgList); 
         }
 
         private async Task FetchReportsAsync(string selectedOrgId)
         {
             var reportsList = new List<Resource>();
-            var rService = new ResourceService();
+            var rService = new ResourceService(repositoryInjector);
             var requestArgs = new KeyValuePair<string, string>[]
             {
                 new KeyValuePair<string, string>("type", "reportUnit"),
