@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using JAPI.Repo.Extensions;
+using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace JAPI.Repo.Repositories
 {
@@ -61,7 +63,7 @@ namespace JAPI.Repo.Repositories
                 BaseUrl = new Uri(url)
             };
 
-        public RestRequest GetRestRequest(KeyValuePair<string, string>[] requestParams, Method method = Method.GET, object requestObject = null)
+        public RestRequest GetRestRequest(Dictionary<RequestParamKey, string> requestParams, Method method = Method.GET, object requestObject = null)
         {
             var req = new RestRequest()
             {
@@ -75,15 +77,14 @@ namespace JAPI.Repo.Repositories
                 req.AddParameter("application/json", jsonObject, ParameterType.RequestBody);
             }
 
-            if (requestParams.Length > 0)
+            if (requestParams != null)
             {
                 foreach (var param in requestParams)
                 {
                     if (!string.IsNullOrEmpty(param.Value))
-                        req.AddParameter(param.Key, param.Value, ParameterType.QueryString);
+                        req.AddParameter(param.Key.GetEnumDescriptor(), param.Value);
                 }
             }
-
             return req;
         }
 

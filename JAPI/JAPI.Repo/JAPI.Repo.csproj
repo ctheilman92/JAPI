@@ -59,7 +59,9 @@
     <Compile Include="DTO\Resource.cs" />
     <Compile Include="DTO\ResourceReference.cs" />
     <Compile Include="DTO\Server.cs" />
+    <Compile Include="DTO\User.cs" />
     <Compile Include="Extensions\ErrorDescriptor.cs" />
+    <Compile Include="Extensions\RequestParamKey.cs" />
     <Compile Include="Repositories\IJAPIAuthenticateRepository.cs" />
     <Compile Include="Repositories\IRESTRepository.cs" />
     <Compile Include="Repositories\JAPIBasicAuthRepository.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Extensions\ResponseObject.cs" />
     <Compile Include="Extensions\RestException.cs" />
     <Compile Include="Extensions\RestExtensions.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>

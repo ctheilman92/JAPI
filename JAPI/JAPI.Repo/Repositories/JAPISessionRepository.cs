@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using JAPI.Repo.Extensions;
+using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
@@ -27,10 +28,10 @@ namespace JAPI.Repo.Repositories
         private RestResponseCookie GetSessionCookie()
         {
             var rClient = GetAuthenticateRestClient();
-            var authParams = new KeyValuePair<string, string>[]
+            var authParams = new Dictionary<RequestParamKey, string>()
             {
-                new KeyValuePair<string, string>("j_username", jClient.Username),
-                new KeyValuePair<string, string>("j_password", jClient.Password),
+                { RequestParamKey.UserName, jClient.Username },
+                { RequestParamKey.Password, jClient.Password }
             };
 
             var req = GetRestRequest(authParams, Method.POST);
@@ -74,7 +75,7 @@ namespace JAPI.Repo.Repositories
         public RestClient GetRestClient(string url, string username = null, string password = null, string organization = null)
             => new RestClient(new Uri(url));
 
-        public RestRequest GetRestRequest(KeyValuePair<string, string>[] requestParams, Method method = Method.GET, object requestObject = null)
+        public RestRequest GetRestRequest(Dictionary<RequestParamKey, string> requestParams = null, Method method = Method.GET, object requestObject = null)
         {
             var req = new RestRequest
             {
@@ -91,12 +92,12 @@ namespace JAPI.Repo.Repositories
                 req.AddParameter("application/json", jsonObject, ParameterType.RequestBody);
             }
 
-            if (requestParams.Length > 0)
+            if (requestParams != null)
             {
                 foreach (var param in requestParams)
                 {
                     if (!string.IsNullOrEmpty(param.Value))
-                        req.AddParameter(param.Key, param.Value, ParameterType.QueryString);
+                        req.AddParameter(param.Key.GetEnumDescriptor(), param.Value);
                 }
             }
 

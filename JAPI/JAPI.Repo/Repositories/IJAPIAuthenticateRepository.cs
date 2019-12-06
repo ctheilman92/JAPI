@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using JAPI.Repo.Extensions;
+using RestSharp;
 using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace JAPI.Repo.Repositories
         RestClient GetRestClient(string url, HttpBasicAuthenticator authenticator = null);
         RestClient GetRestClient(string url);
         RestClient GetRestClient(string url, string username = null, string password = null, string organization = null);
-        RestRequest GetRestRequest(KeyValuePair<string, string>[] requestParams, Method method = Method.GET, object requestObject = null);
+        RestRequest GetRestRequest(Dictionary<RequestParamKey, string> requestParams = null, Method method = Method.GET, object requestObject = null);
         JClient GetJClient();
     }
 

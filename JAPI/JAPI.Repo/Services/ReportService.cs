@@ -1,4 +1,5 @@
-﻿using JAPI.Repo.Repositories;
+﻿using JAPI.Repo.Extensions;
+using JAPI.Repo.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,7 +14,7 @@ namespace JAPI.Repo
             TAG = "/reports";
         }
 
-        public async Task<Byte[]> RunReportAsync(string reportPath, params KeyValuePair<string, string>[] requestParams)
+        public async Task<Byte[]> RunReportAsync(string reportPath, Dictionary<RequestParamKey, string> requestParams = null)
         {
             var res = await GetJasperResponseAsync(reportPath, requestParams);
             return res.RawBytes;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using JAPI.Repo;
+using JAPI.Repo.Extensions;
 using JAPI.Repo.Repositories;
 using JAPI.Repo.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -55,15 +56,9 @@ namespace JAPI.UnitTests
         [TestMethod]
         public async Task SearchOrganizations()
         {
-            var paramList = new KeyValuePair<string, string>[]
-            {
-                new KeyValuePair<string, string>("q", "X2RDATA_DEV"),
-                new KeyValuePair<string, string>("includeParents", ""),
-                new KeyValuePair<string, string>("rootTenantId", ""),
-                new KeyValuePair<string, string>("offset", ""),
-                new KeyValuePair<string, string>("limit", ""),
-                new KeyValuePair<string, string>("maxdepth", ""),
-            };
+
+            var paramList = RequestParamExtensions.GetBaseParams();
+            paramList.Add(RequestParamKey.Query, "X2RDATA_DEV");
 
             var orgService = new OrganizationService(repositoryInjector);
             var orgList = await orgService.SearchOrgs(paramList);
@@ -77,10 +72,7 @@ namespace JAPI.UnitTests
         [TestMethod]
         public async Task RunSingleReport()
         {
-            var paramList = new KeyValuePair<string, string>[]
-            {
-                //new KeyValuePair<string, string>("page", "1")
-            };
+
             var reportService = new ReportService(repositoryInjector);
             var reportPath = "/reports/AP_Invoice_Report.html";
             var downloadPath = System.AppContext.BaseDirectory + "report.html";
@@ -88,7 +80,7 @@ namespace JAPI.UnitTests
             if (System.IO.File.Exists(downloadPath))
                 System.IO.File.Delete(downloadPath);
 
-            var rawBytes = await reportService.RunReportAsync(reportPath, paramList);
+            var rawBytes = await reportService.RunReportAsync(reportPath);
 
             System.IO.File.WriteAllBytes(downloadPath, rawBytes);
             if ((System.IO.File.Exists(downloadPath)) && (System.IO.File.ReadAllBytes(downloadPath).Length > 0))
@@ -188,7 +180,7 @@ namespace JAPI.UnitTests
             try
             {
                 var service = new ResourceService(repositoryInjector);
-                var reportUnits = await service.GetResourcesAsync(requestParams);
+                //var reportUnits = await service.GetResourcesAsync(requestParams);
 
                 Debug.Assert(true);
 

@@ -1,4 +1,5 @@
 ﻿using JAPI.Repo;
+using JAPI.Repo.Extensions;
 using JAPI.Repo.Repositories;
 using System;
 using System.Collections.Generic;
@@ -56,26 +57,6 @@ namespace JAPI.App
 
         }
 
-        #region ASYNC SANITY CHECK
-        //private async void InitDoWork()
-        //{
-        //    var T = await DoWork();
-        //    var tt = T;
-        //}
-
-        //private Task<int> DoWork()
-        //{
-        //    return Task.Run(() =>
-        //    {
-        //        for (int i = 0; i < 10; i++)
-        //        {
-        //            Thread.Sleep(500);
-        //        };
-        //        return 500;
-        //    });
-        //}
-        #endregion
-
         private void InitEmptyCollections()
         {
             organizations = new RangeObservableCollection<Org>() { };
@@ -103,6 +84,7 @@ namespace JAPI.App
                     //FIX THIS IF YOUF WANT TO CONTINUE
                     var jOrg = await orgService.GetOrg(orgId);
                     newOrgList.Add(jOrg);
+                     
                 }
                 catch (Exception ex)
                 {
@@ -134,15 +116,15 @@ namespace JAPI.App
         {
             var reportsList = new List<Resource>();
             var rService = new ResourceService(repositoryInjector);
-            var requestArgs = new KeyValuePair<string, string>[]
+            var requestParams = new Dictionary<RequestParamKey, string>()
             {
-                new KeyValuePair<string, string>("type", "reportUnit"),
-                new KeyValuePair<string, string>("folderUri", "/reports"),
+                { RequestParamKey.ResourceType, "reportUnit" },
+                { RequestParamKey.FolderURI, "/reports" }
             };
 
             try
             {
-                var reportsLookup = await rService.GetResourcesAsync(requestArgs);
+                var reportsLookup = await rService.GetResourcesAsync(requestParams);
                 reportsList = reportsLookup.resourceLookup;
             }
             catch (Exception ex)

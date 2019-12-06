@@ -1,4 +1,5 @@
-﻿using JAPI.Repo.Repositories;
+﻿using JAPI.Repo.Extensions;
+using JAPI.Repo.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,7 +17,7 @@ namespace JAPI.Repo
         }
 
 
-        public async Task<List<Org>> SearchOrgs(params KeyValuePair<string, string>[] requestParams)
+        public async Task<List<Org>> SearchOrgs(Dictionary<RequestParamKey, string> requestParams = null)
         {
             var orgs = await GetJasperObjectAsync<List<Org>>(string.Empty, requestParams);
             return orgs;

@@ -1,11 +1,15 @@
-﻿using JAPI.Repo.Repositories;
+﻿using JAPI.Repo.Extensions;
+using JAPI.Repo.Repositories;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace JAPI.Repo
 {
+
+
     /// <summary>
     /// Injected Dependency Repository should NEVER be empty, so neither should the constructor or exceptions are guarenteed.
     /// <see cref="IJAPIAuthenticateRepository"/>
@@ -31,7 +35,7 @@ namespace JAPI.Repo
         private string GetBaseURL() 
             => jRepository.GetJClient().BaseURL;
         #region OLD IMP
-        public async Task<IRestResponse> GetJasperResponseAsync(string singleRequestTag = "", params KeyValuePair<string, string>[] requestParams)
+        public async Task<IRestResponse> GetJasperResponseAsync(string singleRequestTag = "", Dictionary<RequestParamKey, string> requestParams = null)
         {
             var baseUrl = GetBaseURL();
             var client = jRepository.GetRestClient(GetBaseURL() + TAG + singleRequestTag);
@@ -43,7 +47,7 @@ namespace JAPI.Repo
             return res;
         }
 
-        public async Task<IRestResponse> PostJasperResponseAsync<T>(T requestObject, string singleRequestTag = "", params KeyValuePair<string, string>[] requestParams)
+        public async Task<IRestResponse> PostJasperResponseAsync<T>(T requestObject, string singleRequestTag = "", Dictionary<RequestParamKey, string> requestParams = null)
         {
             var client = jRepository.GetRestClient(GetBaseURL() + TAG + singleRequestTag);
             var req = jRepository.GetRestRequest(requestParams, Method.POST, requestObject);
@@ -54,7 +58,7 @@ namespace JAPI.Repo
             return res;
         }
 
-        public async Task<Byte[]> GetJasperContentAsync(string singleRequestTag = "", params KeyValuePair<string, string>[] requestParams)
+        public async Task<Byte[]> GetJasperContentAsync(string singleRequestTag = "", Dictionary<RequestParamKey, string> requestParams = null)
         {
             var client = jRepository.GetRestClient(GetBaseURL() + TAG + singleRequestTag);
             var req = jRepository.GetRestRequest(requestParams);
@@ -65,7 +69,7 @@ namespace JAPI.Repo
             return res.RawBytes;
         }
 
-        public async Task<T> GetJasperObjectAsync<T>(string singleRequestTag = "", params KeyValuePair<string, string>[] requestParams)
+        public async Task<T> GetJasperObjectAsync<T>(string singleRequestTag = "", Dictionary<RequestParamKey, string> requestParams = null)
             where T : new()
         {
             var client = jRepository.GetRestClient(GetBaseURL() + TAG + singleRequestTag);
@@ -77,7 +81,7 @@ namespace JAPI.Repo
             return (T)res.Data;
         }
 
-        public async Task<Byte[]> PostJasperContentAsync<T>(T requestObject, string singleRequestTag = "", params KeyValuePair<string, string>[] requestParams)
+        public async Task<Byte[]> PostJasperContentAsync<T>(T requestObject, string singleRequestTag = "", Dictionary<RequestParamKey, string> requestParams = null)
         {
             var client = jRepository.GetRestClient(GetBaseURL() + TAG + singleRequestTag);
             var req = jRepository.GetRestRequest(requestParams, Method.POST, requestObject);
@@ -88,7 +92,7 @@ namespace JAPI.Repo
             return res.RawBytes;
         }
 
-        public async Task<TOUT> PostJasperObjectAsync<TIN, TOUT>(TIN requestObject = default, string singleRequestTag = "", params KeyValuePair<string, string>[] requestParams)
+        public async Task<TOUT> PostJasperObjectAsync<TIN, TOUT>(TIN requestObject = default, string singleRequestTag = "", Dictionary<RequestParamKey, string> requestParams = null)
             where TOUT : new()
         {
             var client = jRepository.GetRestClient(GetBaseURL() + TAG + singleRequestTag);
