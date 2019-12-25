@@ -61,7 +61,9 @@
     <Compile Include="DTO\Server.cs" />
     <Compile Include="DTO\User.cs" />
     <Compile Include="Extensions\ErrorDescriptor.cs" />
+    <Compile Include="Extensions\RepositoryInjector.cs" />
     <Compile Include="Extensions\RequestParamKey.cs" />
+    <Compile Include="Extensions\ResourceExtensions.cs" />
     <Compile Include="Repositories\IJAPIAuthenticateRepository.cs" />
     <Compile Include="Repositories\IRESTRepository.cs" />
     <Compile Include="Repositories\JAPIBasicAuthRepository.cs" />

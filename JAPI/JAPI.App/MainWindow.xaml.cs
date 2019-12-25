@@ -1,23 +1,16 @@
 ﻿using JAPI.Repo;
+using JAPI.Repo.DTO;
 using JAPI.Repo.Extensions;
 using JAPI.Repo.Repositories;
+using JAPI.Repo.Services;
+using Microsoft.AspNet.SignalR.Client;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace JAPI.App
 {
@@ -27,41 +20,22 @@ namespace JAPI.App
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        private readonly string[] defaultOrgList = { "X2RDATA_DEV", "X2RDATA_QA", "X2RDATA_US_UAT", "X2RDATA_ARINEO_TST" };
-        public RangeObservableCollection<Org> organizations { get; set; }
-        public RangeObservableCollection<Resource> reportsCollection { get; set; }
-        public RangeObservableCollection<Resource> selectedReportsCollection { get; set; }
-
-        private JAPISessionRepository _repositoryInjector;
-        public JAPISessionRepository repositoryInjector
-        {
-            get
-            {
-                if (_repositoryInjector == null)
-                {
-                    _repositoryInjector = RepositoryInjector.GetInjector<JAPISessionRepository>();
-                }
-                return _repositoryInjector;
-            }
-        }
+        public JAPIViewModel ViewModel { get; set; }
 
         public MainWindow()
         {
-            InitEmptyCollections();
-            InitOrgDataAsync();
+            try
+            {
+                ViewModel = new JAPIViewModel();
+                DataContext = ViewModel;
+                InitializeComponent();
+                reportsSelectionEnable(false);
+            }
+            catch (Exception ex)
+            {
+                DisplayErrorMessage(ex.Message);
+            }
 
-            DataContext = this;
-            InitializeComponent();
-            reportsSelectionEnable(false);
-
-        }
-
-        private void InitEmptyCollections()
-        {
-            organizations = new RangeObservableCollection<Org>() { };
-            reportsCollection = new RangeObservableCollection<Resource>() { };
-            selectedReportsCollection = new RangeObservableCollection<Resource>() { };
         }
 
         private void reportsSelectionEnable(bool isEnable)
@@ -70,79 +44,6 @@ namespace JAPI.App
             btnAvReportsSelectAll.IsEnabled = btnAvReportsSelectNone.IsEnabled =
             btnSelReportsSelectAll.IsEnabled = btnSelReportsSelectNone.IsEnabled =
             btnUnselectItem.IsEnabled = btnSelectItem.IsEnabled = isEnable;
-        }
-
-        private async void InitOrgDataAsync()
-        {
-            var newOrgList = new List<Org>();
-            var orgService = new OrganizationService(repositoryInjector);
-
-            foreach (var orgId in defaultOrgList)
-            {
-                try
-                {
-                    //FIX THIS IF YOUF WANT TO CONTINUE
-                    var jOrg = await orgService.GetOrg(orgId);
-                    newOrgList.Add(jOrg);
-                     
-                }
-                catch (Exception ex)
-                {
-                    var msg = $"exception Occurred - attempting to load default list";
-                    if (ex is RestException)
-                    {
-                        var restex = (RestException)ex;
-                        if (restex.HttpStatusCode == System.Net.HttpStatusCode.Unauthorized || restex.HttpStatusCode == System.Net.HttpStatusCode.Forbidden)
-                        {
-                            msg = $"REST Operations error occurred with status code {restex.HttpStatusCode.ToString()}. Message: {restex.Message} \n....attempting to load defaults";
-                            newOrgList.Add(
-                                new Org
-                                {
-                                    id = orgId,
-                                    alias = orgId,
-                                    tenantName = orgId
-                                });
-                        }
-                    }
-                    DisplayErrorMessage(msg);
-                }
-            }
-
-            organizations.Clear();
-            organizations.AddRange(newOrgList); 
-        }
-
-        private async Task FetchReportsAsync(string selectedOrgId)
-        {
-            var reportsList = new List<Resource>();
-            var rService = new ResourceService(repositoryInjector);
-            var requestParams = new Dictionary<RequestParamKey, string>()
-            {
-                { RequestParamKey.ResourceType, "reportUnit" },
-                { RequestParamKey.FolderURI, "/reports" }
-            };
-
-            try
-            {
-                var reportsLookup = await rService.GetResourcesAsync(requestParams);
-                reportsList = reportsLookup.resourceLookup;
-            }
-            catch (Exception ex)
-            {
-                var msg = $"exception Occurred - message {ex.Message}";
-                if (ex is RestException restex)
-                {
-                    if (restex.HttpStatusCode == System.Net.HttpStatusCode.Unauthorized || restex.HttpStatusCode == System.Net.HttpStatusCode.Forbidden)
-                    {
-                        msg = $"REST Operations error occurred with status code {restex.HttpStatusCode.ToString()} - attempting to load defaults";
-                    }
-                }
-                DisplayErrorMessage(msg);
-            }
-
-            reportsCollection.Clear();
-            reportsCollection.AddRange(reportsList);
-
         }
 
         private void DisplayErrorMessage(string message)
@@ -163,11 +64,11 @@ namespace JAPI.App
 
         private void BtnSelectItem_Click(object sender, RoutedEventArgs e)
         {
-            var newSelectedList = new List<Resource>(selectedReportsCollection);
-            var newReportsList = new List<Resource>(reportsCollection);
+            var newSelectedList = new List<ReportUnit>(ViewModel.selectedReportsCollection);
+            var newReportsList = new List<ReportUnit>(ViewModel.reportsCollection);
 
             var selectedItems =
-                lboxAvailableReports.SelectedItems.Cast<Resource>()
+                lboxAvailableReports.SelectedItems.Cast<ReportUnit>()
                 .Where(x => !newSelectedList.Any(y => x == y)).ToList();
 
             newSelectedList.AddRange(selectedItems);
@@ -175,19 +76,21 @@ namespace JAPI.App
             foreach (var rItem in selectedItems)
                 newReportsList.Remove(rItem);
 
-            reportsCollection.Clear();
-            selectedReportsCollection.Clear();
-            reportsCollection.AddRange(newReportsList);
-            selectedReportsCollection.AddRange(newSelectedList);
+            ViewModel.reportsCollection.Clear();
+            ViewModel.selectedReportsCollection.Clear();
+            ViewModel.reportsCollection.AddRange(newReportsList);
+            ViewModel.selectedReportsCollection.AddRange(newSelectedList);
+
+            btnExecuteSelected.IsEnabled = (ViewModel.selectedReportsCollection.Count > 0);
         }
 
         private void BtnUnselectItem_Click(object sender, RoutedEventArgs e)
         {
-            var newSelectedList = new List<Resource>(selectedReportsCollection);
-            var newReportsList = new List<Resource>(reportsCollection);
+            var newSelectedList = new List<ReportUnit>(ViewModel.selectedReportsCollection);
+            var newReportsList = new List<ReportUnit>(ViewModel.reportsCollection);
 
             var selectedItems =
-                lboxSelectedReports.SelectedItems.Cast<Resource>()
+                lboxSelectedReports.SelectedItems.Cast<ReportUnit>()
                 .Where(x => !newReportsList.Any(y => x == y)).ToList();
 
             newReportsList.AddRange(selectedItems);
@@ -195,10 +98,12 @@ namespace JAPI.App
             foreach (var rItem in selectedItems)
                 newSelectedList.Remove(rItem);
 
-            reportsCollection.Clear();
-            selectedReportsCollection.Clear();
-            reportsCollection.AddRange(newReportsList);
-            selectedReportsCollection.AddRange(newSelectedList);
+            ViewModel.reportsCollection.Clear();
+            ViewModel.selectedReportsCollection.Clear();
+            ViewModel.reportsCollection.AddRange(newReportsList);
+            ViewModel.selectedReportsCollection.AddRange(newSelectedList);
+
+            btnExecuteSelected.IsEnabled = (ViewModel.selectedReportsCollection.Count > 0);
         }
 
         private void BtnAvReportsSelectAll_Click(object sender, RoutedEventArgs e)
@@ -223,9 +128,9 @@ namespace JAPI.App
 
         private async void CbOrg_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedOrg = (Org)e.AddedItems[0] ?? new Org { id = defaultOrgList[0] };
+            var selectedOrg = (Org)e.AddedItems[0] ?? new Org { id = ViewModel.defaultOrgList[0] };
 
-            await FetchReportsAsync(selectedOrg.id);
+            await ViewModel.FetchReportsAsync(selectedOrg.id);
             reportsSelectionEnable(true);
 
         }
@@ -234,5 +139,74 @@ namespace JAPI.App
         {
 
         }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void BtnExecuteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.executeReportsCollection.Clear();
+            var execList = new List<ReportExecutionResultSet>();
+
+            if (ViewModel.selectedReportsCollection.Count > 0)
+            {
+                var execService = new ReportExecutionService(RepositoryInjector.GetInjector<JAPISessionRepository>());
+                execList = ViewModel.selectedReportsCollection.Select(r =>
+                    new ReportExecutionResultSet
+                    {
+                        guid = Guid.NewGuid(),
+                        resource = r,
+                        status = "waiting"
+                    }).ToList();
+
+                ViewModel.executeReportsCollection.AddRange(execList);
+                Task.Factory.StartNew(async() => { await ViewModel.pollService.SendExecutionRequests(execList); });
+            }
+
+            tabResults.IsEnabled = (ViewModel.executeReportsCollection.Count > 0);
+            tabResults.IsSelected = true;
+        }
+
+        private void SendCancelExecution(ReportExecutionResultSet resultSet)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SendCancelAllExecutions()
+        {
+            throw new NotImplementedException();
+        }
+
+        #region SIGNALR CLIENT CALLBACKS
+
+        private void UpdateExecutionSet(ReportExecutionResultSet resultSet)
+        {
+            var item = ViewModel.executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
+            if (item != null)
+            {
+                item = resultSet;
+            }
+        }
+
+        private void AllExecutionsCancelled()
+        {
+            foreach (var reportUnit in ViewModel.executeReportsCollection)
+            {
+                reportUnit.status = "Cancelled";
+            }
+        }
+
+        private void ExecutionCancelled(ReportExecutionResultSet resultSet)
+        {
+            var item = ViewModel.executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
+            if (item != null)
+            {
+                item.status = "Cancelled";
+            }
+        }
+
+        #endregion
     }
 }

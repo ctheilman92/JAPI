@@ -17,6 +17,10 @@ namespace JAPI.Repo
     /// </summary>
     public class JAPIService : IRESTRepository
     {
+        private Dictionary<RequestParamKey, string> _requestParams { get; set; }
+
+        public Dictionary<RequestParamKey, string> requestParams { get { return _requestParams; } set { _requestParams = value; } }
+
         public IJAPIAuthenticateRepository jRepository { get; set; }
 
         #region DI Constructor
@@ -30,6 +34,14 @@ namespace JAPI.Repo
         {
             var server = await GetJasperObjectAsync<Server>();
             return server;
+        }
+
+        public void AddUpdateRequestParams(RequestParamKey paramKey, string value)
+        {
+            if (requestParams.ContainsKey(paramKey))
+                requestParams[paramKey] = value;
+            else
+                requestParams.Add(paramKey, value);
         }
 
         private string GetBaseURL() 

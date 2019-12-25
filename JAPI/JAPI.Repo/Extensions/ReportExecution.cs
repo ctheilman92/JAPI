@@ -35,6 +35,7 @@ namespace JAPI.Repo
         public string status { get; set; }
         public OutputResource outputResource { get; set; }
         public List<Attachments> attachments { get; set; }
+        public ErrorDescriptor errorDescriptor { get; set; }
     }
 
     public class OutputResource

@@ -19,7 +19,7 @@ namespace JAPI.Repo.Extensions
         ShowHiddenItems,
         [Description("type")]
         ResourceType,
-        [Description("folderURI")]
+        [Description("folderUri")]
         FolderURI,
         [Description("q")]
         Query,
@@ -47,6 +47,22 @@ namespace JAPI.Repo.Extensions
         UserName,
         [Description("j_password")]
         Password,
+        [Description("async")]
+        Async,
+        [Description("pages")]
+        ReturnPages,
+        [Description("freshData")]
+        FreshData,
+        [Description("parameters")]
+        PostBodyParameters,
+        [Description("ignorePagination")]
+        IgnorePagination,
+        [Description("outputFormat")]
+        ReturnOutputFormat,
+        [Description("saveDataSnapshot")]
+        SaveDataSnapshot,
+        [Description("reportUnitUri")]
+        ReportUnitURI
     }
 
     public static class RequestParamExtensions

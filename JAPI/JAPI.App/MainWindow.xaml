@@ -5,7 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JAPI.App"
         mc:Ignorable="d"
-        Title="Jasper SMOKE" Height="627" Width="1464">
+        Title="Jasper SMOKE" Height="627" Width="909">
+    <Window.Resources>
+        <Style x:Key="DGHeaderStyle" TargetType="{x:Type DataGrid}">
+            <Setter Property="ColumnHeaderStyle" Value="{DynamicResource DGCHeaderStyle}"/>
+        </Style>
+        <Style x:Key="DGCHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="LightBlue" />
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontFamily" Value="Calibri" />
+        </Style>
+    </Window.Resources>
     <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -13,7 +25,7 @@
         <Grid.RowDefinitions>
         </Grid.RowDefinitions>
         <Label x:Name="label" FontSize="36" Content="Jasper Reports SMOKE" Margin="10,25,10,0" VerticalAlignment="Top" Height="65"/>
-        <TabControl x:Name="tabControl" Margin="5,95,10,0" Height="455" VerticalAlignment="Top">
+        <TabControl x:Name="tabControl" Margin="5,95,10,0" Height="491" VerticalAlignment="Top">
             <TabItem Header="Configure Tests">
                 <Grid Background="#FFE5E5E5" RenderTransformOrigin="0.497,0.47" Margin="0,0,0,-2">
                     <Grid.ColumnDefinitions>
@@ -32,7 +44,7 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                     <Label x:Name="lblOrg" Content="Organization: " HorizontalAlignment="Left" Margin="10,29,0,0" VerticalAlignment="Top" Width="140" Height="36" FontWeight="Bold" Grid.RowSpan="2"/>
-                    <ListBox x:Name="lboxAvailableReports" SelectionMode="Multiple"  HorizontalAlignment="Left" Margin="35,84,0,0" Width="289" Height="268" VerticalAlignment="Top" Grid.Row="1" SelectionChanged="LboxAvailableReports_SelectionChanged"
+                    <ListBox x:Name="lboxAvailableReports" SelectionMode="Multiple"  HorizontalAlignment="Left" Margin="45,95,0,0" Width="339" Height="268" VerticalAlignment="Top" Grid.Row="1" SelectionChanged="LboxAvailableReports_SelectionChanged"
                     ItemsSource="{Binding reportsCollection, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -40,7 +52,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <ListBox x:Name="lboxSelectedReports" SelectionMode="Multiple" HorizontalAlignment="Left" Margin="432,84,0,0" Width="299" Height="268" VerticalAlignment="Top" Grid.Row="1"
+                    <ListBox x:Name="lboxSelectedReports" SelectionMode="Multiple" HorizontalAlignment="Left" Margin="492,95,0,0" Width="339" Height="268" VerticalAlignment="Top" Grid.Row="1"
                     ItemsSource="{Binding selectedReportsCollection, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -49,24 +61,38 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <Label x:Name="lblAvailableReports" Content="Available Reports " HorizontalAlignment="Left" Margin="432,43,0,0" VerticalAlignment="Top" Width="180" Height="36" FontWeight="Bold" RenderTransformOrigin="1.286,0.722" Grid.Row="1"/>
-                    <Label x:Name="lblSelectedReports" Content="Selected Reports " HorizontalAlignment="Left" Margin="35,43,0,0" VerticalAlignment="Top" Width="174" Height="36" FontWeight="Bold" Grid.Row="1"/>
+                    <Label x:Name="lblAvailableReports" Content="Available Reports " HorizontalAlignment="Left" Margin="492,54,0,0" VerticalAlignment="Top" Width="180" Height="36" FontWeight="Bold" RenderTransformOrigin="1.286,0.722" Grid.Row="1"/>
+                    <Label x:Name="lblSelectedReports" Content="Selected Reports " HorizontalAlignment="Left" Margin="45,54,0,0" VerticalAlignment="Top" Width="174" Height="36" FontWeight="Bold" Grid.Row="1"/>
 
-                    <Button x:Name="btnSelectItem" Content="&gt;&gt;" HorizontalAlignment="Left" Margin="352,190,0,0" VerticalAlignment="Top" Width="57" Height="30" FontSize="16" RenderTransformOrigin="0.833,0.333" Grid.Row="1" Click="BtnSelectItem_Click"/>
-                    <Button x:Name="btnUnselectItem" Content="&lt;&lt;" HorizontalAlignment="Left" Margin="352,225,0,0" VerticalAlignment="Top" Width="57" Height="30" FontSize="16" Grid.Row="1" Click="BtnUnselectItem_Click"/>
+                    <Button x:Name="btnSelectItem" Content="&gt;&gt;" HorizontalAlignment="Left" Margin="412,201,0,0" VerticalAlignment="Top" Width="57" Height="30" FontSize="16" RenderTransformOrigin="0.833,0.333" Grid.Row="1" Click="BtnSelectItem_Click"/>
+                    <Button x:Name="btnUnselectItem" Content="&lt;&lt;" HorizontalAlignment="Left" Margin="412,236,0,0" VerticalAlignment="Top" Width="57" Height="30" FontSize="16" Grid.Row="1" Click="BtnUnselectItem_Click"/>
 
-                    <Button x:Name="btnAvReportsSelectAll" Content="Select All" HorizontalAlignment="Left" Margin="35,363,0,0" VerticalAlignment="Top" Width="132" Height="22" Grid.Row="1" Click="BtnAvReportsSelectAll_Click"/>
-                    <Button x:Name="btnAvReportsSelectNone" Content="Select None" HorizontalAlignment="Left" Margin="187,363,0,0" VerticalAlignment="Top" Width="137" Height="22" Grid.Row="1" Click="BtnAvReportsSelectNone_Click"/>
+                    <Button x:Name="btnAvReportsSelectAll" Content="Select All" HorizontalAlignment="Left" Margin="45,374,0,0" VerticalAlignment="Top" Width="132" Height="22" Grid.Row="1" Click="BtnAvReportsSelectAll_Click"/>
+                    <Button x:Name="btnAvReportsSelectNone" Content="Select None" HorizontalAlignment="Left" Margin="247,374,0,0" VerticalAlignment="Top" Width="137" Height="22" Grid.Row="1" Click="BtnAvReportsSelectNone_Click"/>
 
-                    <Button x:Name="btnSelReportsSelectAll" Content="Select All" HorizontalAlignment="Left" Margin="432,363,0,0" VerticalAlignment="Top" Width="138" Height="22" Grid.Row="1" Click="BtnSelReportsSelectAll_Click"/>
-                    <Button x:Name="btnSelReportsSelectNone" Content="Select None" HorizontalAlignment="Left" Margin="603,363,0,0" VerticalAlignment="Top" Width="128" Height="22" Grid.Row="1" Click="BtnSelReportsSelectNone_Click"/>
+                    <Button x:Name="btnSelReportsSelectAll" Content="Select All" HorizontalAlignment="Left" Margin="492,374,0,0" VerticalAlignment="Top" Width="138" Height="22" Grid.Row="1" Click="BtnSelReportsSelectAll_Click"/>
+                    <Button x:Name="btnSelReportsSelectNone" Content="Select None" HorizontalAlignment="Left" Margin="703,374,0,0" VerticalAlignment="Top" Width="128" Height="22" Grid.Row="1" Click="BtnSelReportsSelectNone_Click"/>
+                    <Button x:Name="btnExecuteSelected" IsEnabled="False" Content="Execute" HorizontalAlignment="Left" Margin="703,25,0,0" VerticalAlignment="Top" Width="128" Height="40" FontWeight="Bold" Click="BtnExecuteSelected_Click" Grid.RowSpan="2"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Test Results">
+            <TabItem x:Name="tabResults" Header="Test Results" IsEnabled="False">
                 <Grid Background="#FFE5E5E5">
-                    <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="408" Margin="10,45,0,0" VerticalAlignment="Top" Width="750"/>
-                    <Button x:Name="button" Content="Execute All" HorizontalAlignment="Left" Margin="658,10,0,0" VerticalAlignment="Top" Width="102" Height="30" FontWeight="Bold"/>
-                    <Button x:Name="button_Copy" Content="Execute Selected" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="102" Height="30" FontWeight="Bold"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid x:Name="dgExecute" AlternatingRowBackground="LightCyan"  HorizontalAlignment="Left" Height="408" Margin="10,45,0,0" VerticalAlignment="Top" Width="850" 
+                              SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False"
+                              ItemsSource="{Binding executeReportsCollection, Mode=TwoWay}">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding guid}" Visibility="Hidden" />
+                            <DataGridTextColumn Header="Progress" Binding="{Binding status}"/>
+                            <DataGridTextColumn Header="Report Label" Binding="{Binding resource.label}" Width="430"/>
+                            <DataGridTextColumn Header="Last Updated" Binding="{Binding resource.updateDate}" Width="150" />
+                            <DataGridTextColumn Header="Permission Mask" Binding="{Binding resource.permissionMask}" Width="105" />
+                            <DataGridCheckBoxColumn Header="Successful" Width="120" IsReadOnly="True" Binding="{Binding successful}" ></DataGridCheckBoxColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
         </TabControl>

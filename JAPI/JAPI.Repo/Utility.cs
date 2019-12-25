@@ -1,6 +1,7 @@
 ﻿using IniParser;
 using IniParser.Model;
 using JAPI.Repo.Repositories;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -48,23 +49,5 @@ namespace JAPI.Repo
                 };
             }
         }
-    }
-
-    public static class RepositoryInjector
-    {
-        private static JClient _jClient
-        {
-            get
-            {
-                return Utility.GetJClientINI();
-            }
-        }
-
-        public static T GetInjector<T>(JClient jclient) where T : JAPIRepositoryBase
-            => (T)Activator.CreateInstance(typeof(T), new object[] { jclient });
-
-        public static T GetInjector<T>() where T : JAPIRepositoryBase
-            => (T)Activator.CreateInstance(typeof(T), new object[] { _jClient });
-
     }
 }

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JAPI.UnitTests", "JAPI.Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JAPI.Repo", "JAPI.Repo\JAPI.Repo.csproj", "{A3C991F8-C90B-4189-9EDC-3CC19356D303}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JAPI.API", "JAPI.API\JAPI.API.csproj", "{DB0741E0-AA50-4254-861F-FC6CCD36C0D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JAPI.PollR", "JAPI.PollR\JAPI.PollR.csproj", "{0D884751-8915-4592-A72F-A4863E413CE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{A3C991F8-C90B-4189-9EDC-3CC19356D303}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3C991F8-C90B-4189-9EDC-3CC19356D303}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3C991F8-C90B-4189-9EDC-3CC19356D303}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB0741E0-AA50-4254-861F-FC6CCD36C0D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB0741E0-AA50-4254-861F-FC6CCD36C0D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB0741E0-AA50-4254-861F-FC6CCD36C0D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB0741E0-AA50-4254-861F-FC6CCD36C0D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D884751-8915-4592-A72F-A4863E413CE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D884751-8915-4592-A72F-A4863E413CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D884751-8915-4592-A72F-A4863E413CE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D884751-8915-4592-A72F-A4863E413CE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

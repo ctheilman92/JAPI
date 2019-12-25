@@ -97,7 +97,7 @@ namespace JAPI.Repo.Repositories
                 foreach (var param in requestParams)
                 {
                     if (!string.IsNullOrEmpty(param.Value))
-                        req.AddParameter(param.Key.GetEnumDescriptor(), param.Value);
+                        req.AddParameter(param.Key.GetEnumDescriptor(), param.Value, ParameterType.QueryString);
                 }
             }
 

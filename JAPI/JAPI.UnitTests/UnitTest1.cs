@@ -10,28 +10,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace JAPI.UnitTests
 {
-
-
     [TestClass]
     public class UnitTest1
     {
-        private JAPIBasicAuthRepository _repositoryInjector  { get;set;}
-        public JAPIBasicAuthRepository repositoryInjector
-        {
-            get
-            {
-                if (_repositoryInjector == null)
-                {
-                    _repositoryInjector = new JAPIBasicAuthRepository(Utility.GetJClientINI());
-                }
-                return _repositoryInjector;
-            }
-        }
 
         [TestMethod]
         public async Task GetServerInfoAsync()
         {
-            var japiService = new JAPIService(repositoryInjector);
+            var japiService = new JAPIService(RepositoryInjector.GetInjector<JAPISessionRepository>());
             var serverInfo = await japiService.GetInfo();
 
             if (serverInfo.version == null)
@@ -44,7 +30,7 @@ namespace JAPI.UnitTests
         public async Task GetOrganization()
         {
             var orgName = "X2RDATA_DEV";
-            var orgService = new OrganizationService(repositoryInjector);
+            var orgService = new OrganizationService(RepositoryInjector.GetInjector<JAPISessionRepository>());
             var org = await orgService.GetOrg(orgName);
 
             if (string.IsNullOrEmpty(org.id))
@@ -60,7 +46,7 @@ namespace JAPI.UnitTests
             var paramList = RequestParamExtensions.GetBaseParams();
             paramList.Add(RequestParamKey.Query, "X2RDATA_DEV");
 
-            var orgService = new OrganizationService(repositoryInjector);
+            var orgService = new OrganizationService(RepositoryInjector.GetInjector<JAPISessionRepository>());
             var orgList = await orgService.SearchOrgs(paramList);
 
             if (orgList.Count > 0)
@@ -73,7 +59,7 @@ namespace JAPI.UnitTests
         public async Task RunSingleReport()
         {
 
-            var reportService = new ReportService(repositoryInjector);
+            var reportService = new ReportService(RepositoryInjector.GetInjector<JAPISessionRepository>());
             var reportPath = "/reports/AP_Invoice_Report.html";
             var downloadPath = System.AppContext.BaseDirectory + "report.html";
 
@@ -92,7 +78,7 @@ namespace JAPI.UnitTests
         [TestMethod]
         public async Task ExecuteReportReturnDetails()
         {
-            var service = new ReportExecutionService(repositoryInjector);
+            var service = new ReportExecutionService(RepositoryInjector.GetInjector<JAPISessionRepository>());
             var reportPath = "/reports/X2R_User_Report";
             try
             {
@@ -129,7 +115,7 @@ namespace JAPI.UnitTests
         public async Task GetExecutedReportContentShouldNotHappenThisWay()
         {
             // f7bebd78-965c-4e08-ac27-6ade43f75163/exports/383b0c75-551d-43b0-9736-06af2fa4610d/outputResource
-            var service = new ReportExecutionService(repositoryInjector);
+            var service = new ReportExecutionService(RepositoryInjector.GetInjector<JAPISessionRepository>());
             var reportPath = "/reports/X2R_User_Report";
             var reportName = "X2R_User_Report.pdf";
 
@@ -179,7 +165,7 @@ namespace JAPI.UnitTests
 
             try
             {
-                var service = new ResourceService(repositoryInjector);
+                var service = new ResourceService(RepositoryInjector.GetInjector<JAPISessionRepository>());
                 //var reportUnits = await service.GetResourcesAsync(requestParams);
 
                 Debug.Assert(true);
