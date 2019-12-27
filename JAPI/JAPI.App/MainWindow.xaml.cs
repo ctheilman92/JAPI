@@ -132,7 +132,6 @@ namespace JAPI.App
 
             await ViewModel.FetchReportsAsync(selectedOrg.id);
             reportsSelectionEnable(true);
-
         }
 
         private void CbOrg_SourceUpdated(object sender, DataTransferEventArgs e)
@@ -186,24 +185,32 @@ namespace JAPI.App
             var item = ViewModel.executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
             if (item != null)
             {
-                item = resultSet;
+                var i = ViewModel.executeReportsCollection.IndexOf(item);
+                ViewModel.executeReportsCollection[i] = resultSet;
             }
         }
 
         private void AllExecutionsCancelled()
         {
+            var newReportList = new List<ReportExecutionResultSet>();
             foreach (var reportUnit in ViewModel.executeReportsCollection)
             {
                 reportUnit.status = "Cancelled";
+                newReportList.Add(reportUnit);
             }
+
+            ViewModel.executeReportsCollection.Clear();
+            ViewModel.executeReportsCollection.AddRange(newReportList);
         }
 
         private void ExecutionCancelled(ReportExecutionResultSet resultSet)
         {
             var item = ViewModel.executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
+            resultSet.status = "Cancelled";
             if (item != null)
             {
-                item.status = "Cancelled";
+                var i = ViewModel.executeReportsCollection.IndexOf(item);
+                ViewModel.executeReportsCollection[i] = resultSet;
             }
         }
 

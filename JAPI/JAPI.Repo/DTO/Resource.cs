@@ -24,13 +24,13 @@ namespace JAPI.Repo
         public List<T> resourceLookup { get; set; }
     }
 
-    //client side results
+
     public class ReportExecutionResultSet : INotifyPropertyChanged
     {
         private Guid _guid;
         public Guid guid
         {
-            get { return _guid;  }
+            get { return _guid; }
             set { _guid = value; RaisePropertyChange(); }
         }
 

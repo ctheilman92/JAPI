@@ -18,28 +18,30 @@ namespace JAPI.App
 
         public readonly string[] defaultOrgList = { "X2RDATA_DEV", "X2RDATA_QA", "X2RDATA_US_UAT", "X2RDATA_ARINEO_TST" };
         public PollService pollService { get; set; } = new PollService();
-        public RangeObservableCollection<Org> organizations { get; set; }
-        public RangeObservableCollection<ReportUnit> reportsCollection { get; set; }
-        public RangeObservableCollection<ReportUnit> selectedReportsCollection { get; set; }
-        public RangeObservableCollection<ReportExecutionResultSet> executeReportsCollection { get; set; }
+
+        public AsyncRangeObservableCollection<Org> organizations { get; set; }
+        public AsyncRangeObservableCollection<ReportUnit> reportsCollection { get; set; }
+        public AsyncRangeObservableCollection<ReportUnit> selectedReportsCollection { get; set; }
+        public AsyncPropertyTrackingObservableCollection<ReportExecutionResultSet> executeReportsCollection { get; set; }
 
         public JAPIViewModel()
         {
-            organizations = new RangeObservableCollection<Org>() { };
-            reportsCollection = new RangeObservableCollection<ReportUnit>() { };
-            selectedReportsCollection = new RangeObservableCollection<ReportUnit>() { };
-            executeReportsCollection = new RangeObservableCollection<ReportExecutionResultSet>() { };
+            organizations = new AsyncRangeObservableCollection<Org>() { };
+            reportsCollection = new AsyncRangeObservableCollection<ReportUnit>() { };
+            selectedReportsCollection = new AsyncRangeObservableCollection<ReportUnit>() { };
+            executeReportsCollection = new AsyncPropertyTrackingObservableCollection<ReportExecutionResultSet>() { };
 
             pollService.RequestUpdated += UpdateExecutionSet;
             pollService.RequestCancelled += ExecutionCancelled;
             pollService.AllRequestsCancelled += AllExecutionsCancelled;
+
             Task.Factory.StartNew(async() => { await pollService.ConnectAsync(); });
-            InitOrgDataAsync();
+            Task.Factory.StartNew(async () => { await InitOrgDataAsync(); });
         }
 
 
         #region MAIN METHODS
-        public async void InitOrgDataAsync()
+        public async Task InitOrgDataAsync()
         {
             var newOrgList = new List<Org>();
             var orgService = new OrganizationService(RepositoryInjector.GetInjector<JAPISessionRepository>());
@@ -118,7 +120,8 @@ namespace JAPI.App
             var item = executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
             if (item != null)
             {
-                item = resultSet;
+                var indexOf = executeReportsCollection.IndexOf(item);
+                executeReportsCollection[indexOf] = resultSet;
             }
         }
 

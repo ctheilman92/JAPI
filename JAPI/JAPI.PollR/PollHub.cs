@@ -18,13 +18,30 @@ namespace JAPI.PollR
 
         public override Task OnConnected()
         {
-            Console.WriteLine("Welcome new Client!!");
+            Console.WriteLine($"Welcome new Client!!");
+            Console.WriteLine($"ConnectionId : {Context.ConnectionId}");
             return base.OnConnected();
         }
 
         public async Task CancelRequestExecution(string requestId)
         {
 
+        }
+
+        public async Task UpdateCallingClient(ReportExecutionResultSet executionSet, bool isException = false)
+        {
+            Console.WriteLine($"Poll Item Updated : [{executionSet.guid} - {executionSet.resource.label}] : STATUS = [{executionSet.status}]");
+            Console.WriteLine($"ConnectionId : {Context.ConnectionId}");
+
+            if (isException)
+            {
+                Console.WriteLine($"Poll Item Internal ERR : {executionSet.internalError}");
+                await Clients.All.ServerRequestFailed(executionSet);
+            }
+            else
+            {
+                await Clients.All.RequestUpdating(executionSet);
+            }
         }
 
         public async Task BeginRequestExecution(ReportExecutionResultSet executionSet)
@@ -42,7 +59,7 @@ namespace JAPI.PollR
 
                     //send client message resultset
                     executionSet.status = "In Progress";
-                    await Clients.All.RequestUpdating(executionSet);
+                    await UpdateCallingClient(executionSet);
 
                     var pollResult = await ExecuteManager.PollRequest(executionSet.requestId);
                     if (pollResult.Key == null)
@@ -60,7 +77,7 @@ namespace JAPI.PollR
                         : string.Empty;
 
                     //send final update to client 
-                    await Clients.Caller.RequestUpdating(executionSet);
+                    await UpdateCallingClient(executionSet);
                 }
             }
             catch (Exception ex)
@@ -68,7 +85,7 @@ namespace JAPI.PollR
                 //send requestFailed message to sender
                 executionSet.status = "Internal Failure";
                 executionSet.internalError = ex.Message;
-                await Clients.Caller.ServerRequestFailed(executionSet);
+                await UpdateCallingClient(executionSet, true);
             }
         }
 
