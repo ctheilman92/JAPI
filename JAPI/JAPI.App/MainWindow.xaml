@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JAPI.App"
+        xmlns:vh="clr-namespace:JAPI.App.Extensions"
         mc:Ignorable="d"
         Title="Jasper SMOKE" Height="627" Width="909">
     <Window.Resources>
@@ -80,17 +81,24 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="dgExecute" AlternatingRowBackground="LightCyan"  HorizontalAlignment="Left" Height="408" Margin="10,45,0,0" VerticalAlignment="Top" Width="850" 
+                    <DataGrid x:Name="dgExecute" AlternatingRowBackground="LightCyan" Height="408" Margin="10,45,20,0" VerticalAlignment="Top" 
                               SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False"
                               ItemsSource="{Binding executeReportsCollection, Mode=TwoWay}">
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding guid}" Visibility="Hidden" />
-                            <DataGridTextColumn Header="Progress" Binding="{Binding status}"/>
-                            <DataGridTextColumn Header="Report Label" Binding="{Binding resource.label}" Width="430"/>
-                            <DataGridTextColumn Header="Last Updated" Binding="{Binding resource.updateDate}" Width="150" />
-                            <DataGridTextColumn Header="Permission Mask" Binding="{Binding resource.permissionMask}" Width="105" />
-                            <DataGridCheckBoxColumn Header="Successful" Width="120" IsReadOnly="True" Binding="{Binding successful}" ></DataGridCheckBoxColumn>
+                            <DataGridTemplateColumn Header="" Width="30" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding Image}" Stretch="None" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding resultSet.guid}" Visibility="Hidden" />
+                            <DataGridTextColumn Header="Status" Width="120" Binding="{Binding resultSet.status}"/>
+                            <DataGridTextColumn Header="Report Label" Binding="{Binding resultSet.resource.label}" Width="430"/>
+                            <DataGridTextColumn Header="Last Updated" Binding="{Binding resultSet.resource.updateDate}" Width="150" />
+                            <DataGridTextColumn Header="Permission Mask" Binding="{Binding resultSet.resource.permissionMask}" Width="120" />
+                            <DataGridCheckBoxColumn Header="Successful" IsReadOnly="True" Visibility="Hidden" Width="120" Binding="{Binding resultSet.successful}" ></DataGridCheckBoxColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

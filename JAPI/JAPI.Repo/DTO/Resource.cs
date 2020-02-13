@@ -24,73 +24,21 @@ namespace JAPI.Repo
         public List<T> resourceLookup { get; set; }
     }
 
-
-    public class ReportExecutionResultSet : INotifyPropertyChanged
+    public class ReportExecutionResultSet
     {
-        private Guid _guid;
-        public Guid guid
-        {
-            get { return _guid; }
-            set { _guid = value; RaisePropertyChange(); }
-        }
-
-        private ReportUnit _resource;
-        public ReportUnit resource
-        {
-            get { return _resource; }
-            set { _resource = value; RaisePropertyChange(); }
-        }
-
-        private string _status;
-        public string status
-        {
-            get { return _status; }
-            set { _status = value; RaisePropertyChange(); }
-        }
-
-        private string _internalError;
-        public string internalError
-        {
-            get { return _internalError; }
-            set { _internalError = value; RaisePropertyChange(); }
-        }
-
-        public string _requestId { get; set; }
-        public string requestId
-        {
-            get { return _requestId; }
-            set { _requestId = value; RaisePropertyChange(); }
-        }
-
-        private Export _export;
-        public Export export
-        {
-            get { return _export; }
-            set { _export = value; RaisePropertyChange(); }
-        }
-
-        private bool _successful;
-        public bool successful
-        {
-            get { return _successful; }
-            set { _successful = value; RaisePropertyChange(); }
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void RaisePropertyChange([CallerMemberName] string propertyname = null)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
-            }
-        }
+        public Guid guid { get; set; }
+        public ReportUnit resource { get; set; }
+        public string status { get; set; }
+        public string internalError { get; set; }
+        public string requestId { get; set; }
+        public Export export { get; set; }
+        public bool successful { get; set; }
 
         public ReportExecutionRequest GetDefaultRequestObject()
         {
             return new ReportExecutionRequest
             {
-                reportUnitUri = (this.resource == null) ? string.Empty : this.resource.uri,
+                reportUnitUri = (resource == null) ? string.Empty : resource.uri,
                 async = false,
                 outputFormat = "pdf",
                 freshData = false,
@@ -99,6 +47,82 @@ namespace JAPI.Repo
             };
         }
     }
+
+
+    //public class ReportExecutionResultSet : INotifyPropertyChanged
+    //{
+    //    private Guid _guid;
+    //    public Guid guid
+    //    {
+    //        get { return _guid; }
+    //        set { _guid = value; RaisePropertyChange(); }
+    //    }
+
+    //    private ReportUnit _resource;
+    //    public ReportUnit resource
+    //    {
+    //        get { return _resource; }
+    //        set { _resource = value; RaisePropertyChange(); }
+    //    }
+
+    //    private string _status;
+    //    public string status
+    //    {
+    //        get { return _status; }
+    //        set { _status = value; RaisePropertyChange(); }
+    //    }
+
+    //    private string _internalError;
+    //    public string internalError
+    //    {
+    //        get { return _internalError; }
+    //        set { _internalError = value; RaisePropertyChange(); }
+    //    }
+
+    //    public string _requestId { get; set; }
+    //    public string requestId
+    //    {
+    //        get { return _requestId; }
+    //        set { _requestId = value; RaisePropertyChange(); }
+    //    }
+
+    //    private Export _export;
+    //    public Export export
+    //    {
+    //        get { return _export; }
+    //        set { _export = value; RaisePropertyChange(); }
+    //    }
+
+    //    private bool _successful;
+    //    public bool successful
+    //    {
+    //        get { return _successful; }
+    //        set { _successful = value; RaisePropertyChange(); }
+    //    }
+
+
+    //    public event PropertyChangedEventHandler PropertyChanged;
+    //    public void RaisePropertyChange([CallerMemberName] string propertyname = null)
+    //    {
+    //        if (PropertyChanged != null)
+    //        {
+    //            PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
+    //        }
+    //    }
+
+    //    public ReportExecutionRequest GetDefaultRequestObject()
+    //    {
+    //        return new ReportExecutionRequest
+    //        {
+    //            reportUnitUri = (this.resource == null) ? string.Empty : this.resource.uri,
+    //            async = false,
+    //            outputFormat = "pdf",
+    //            freshData = false,
+    //            saveDataSnapshot = false,
+    //            ignorePagination = false
+    //        };
+    //    }
+    //}
 
     //build these up to be more generic later. for now don't use ResourceSearchParams
     public class ResourceSearchParams<T> where T : Resource

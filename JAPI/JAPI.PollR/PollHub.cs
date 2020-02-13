@@ -14,13 +14,26 @@ namespace JAPI.PollR
 {
     public class PollHub : Hub
     {
-        private static IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<PollHub>();
+        private readonly static ClientRepositoryMapping<JAPISessionRepository> _clientMappings 
+            = new ClientRepositoryMapping<JAPISessionRepository>();
 
         public override Task OnConnected()
         {
             Console.WriteLine($"Welcome new Client!!");
             Console.WriteLine($"ConnectionId : {Context.ConnectionId}");
+
+            //get JAPI session connect it to connectionId
+            var repository = RepositoryInjector.GetInjector<JAPISessionRepository>();
+            _clientMappings.Add(Context.ConnectionId, repository);
+            Console.WriteLine($"JAPI Repository session established: {repository.jClient.JSessionID}");
+
             return base.OnConnected();
+        }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            _clientMappings.Remove(Context.ConnectionId);
+            return base.OnDisconnected(stopCalled);
         }
 
         public async Task CancelRequestExecution(string requestId)
@@ -40,7 +53,7 @@ namespace JAPI.PollR
             }
             else
             {
-                await Clients.All.RequestUpdating(executionSet);
+                await Clients.Caller.RequestUpdating(executionSet);
             }
         }
 
@@ -71,9 +84,9 @@ namespace JAPI.PollR
 
                     executionSet.export = exportDetails.exports.FirstOrDefault();
                     executionSet.status = executionSet.export.status;
-                    executionSet.successful = (string.IsNullOrEmpty(executionSet.internalError) && executionSet.status.Equals("failed", StringComparison.OrdinalIgnoreCase));
-                    executionSet.internalError = (executionSet.export.errorDescriptor != null) 
-                        ? $"[{executionSet.export.errorDescriptor.errorCode}] - {executionSet.export.errorDescriptor.message}" 
+                    executionSet.successful = (string.IsNullOrEmpty(executionSet.internalError) && !executionSet.status.Equals("failed", StringComparison.OrdinalIgnoreCase));
+                    executionSet.internalError = (executionSet.export.errorDescriptor != null)
+                        ? $"[{executionSet.export.errorDescriptor.errorCode}] - {executionSet.export.errorDescriptor.message}"
                         : string.Empty;
 
                     //send final update to client 
@@ -87,10 +100,6 @@ namespace JAPI.PollR
                 executionSet.internalError = ex.Message;
                 await UpdateCallingClient(executionSet, true);
             }
-        }
-
-        public void Send(string name, string message)
-        {
         }
     }
 }

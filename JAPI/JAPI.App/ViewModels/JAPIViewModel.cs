@@ -1,4 +1,5 @@
-﻿using JAPI.Repo;
+﻿using JAPI.App.Extensions;
+using JAPI.Repo;
 using JAPI.Repo.Extensions;
 using JAPI.Repo.Repositories;
 using System;
@@ -7,29 +8,41 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace JAPI.App
 {
 
     public class JAPIViewModel
     {
-        //public event PropertyChangedEventHandler PropertyChanged;
 
-
-        public readonly string[] defaultOrgList = { "X2RDATA_DEV", "X2RDATA_QA", "X2RDATA_US_UAT", "X2RDATA_ARINEO_TST" };
         public PollService pollService { get; set; } = new PollService();
-
         public AsyncRangeObservableCollection<Org> organizations { get; set; }
         public AsyncRangeObservableCollection<ReportUnit> reportsCollection { get; set; }
         public AsyncRangeObservableCollection<ReportUnit> selectedReportsCollection { get; set; }
-        public AsyncPropertyTrackingObservableCollection<ReportExecutionResultSet> executeReportsCollection { get; set; }
+        public AsyncPropertyTrackingObservableCollection<ReportExecutionWPFRecord> executeReportsCollection { get; set; }
+        public JAPISessionRepository _SessionRepository { get; set; }
+        public JAPISessionRepository SessionRepository
+        {
+            get
+            {
+                if (_SessionRepository == null)
+                    _SessionRepository = RepositoryInjector.GetInjector<JAPISessionRepository>();
+                return _SessionRepository;
+            }
+        }
+
+
+
+        public readonly string[] defaultOrgList = { "X2RDATA_DEV", "X2RDATA_QA", "X2RDATA_US_UAT", "X2RDATA_ARINEO_TST" };
 
         public JAPIViewModel()
         {
             organizations = new AsyncRangeObservableCollection<Org>() { };
             reportsCollection = new AsyncRangeObservableCollection<ReportUnit>() { };
             selectedReportsCollection = new AsyncRangeObservableCollection<ReportUnit>() { };
-            executeReportsCollection = new AsyncPropertyTrackingObservableCollection<ReportExecutionResultSet>() { };
+            executeReportsCollection = new AsyncPropertyTrackingObservableCollection<ReportExecutionWPFRecord>() { };
 
             pollService.RequestUpdated += UpdateExecutionSet;
             pollService.RequestCancelled += ExecutionCancelled;
@@ -44,7 +57,7 @@ namespace JAPI.App
         public async Task InitOrgDataAsync()
         {
             var newOrgList = new List<Org>();
-            var orgService = new OrganizationService(RepositoryInjector.GetInjector<JAPISessionRepository>());
+            var orgService = new OrganizationService(SessionRepository);
 
             //for now test on x2r_data_dev
             var orgId = defaultOrgList[0];
@@ -115,30 +128,65 @@ namespace JAPI.App
 
         #region SIGNALR CLIENT CALLBACKS
 
-        private void UpdateExecutionSet(ReportExecutionResultSet resultSet)
+        private void UpdateExecutionSet(ReportExecutionResultSet updatedResultSet)
         {
-            var item = executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
+            var item = executeReportsCollection.FirstOrDefault(r => r.resultSet.guid == updatedResultSet.guid);
             if (item != null)
             {
                 var indexOf = executeReportsCollection.IndexOf(item);
-                executeReportsCollection[indexOf] = resultSet;
+                Uri srcUri = null;
+                if (updatedResultSet.successful)
+                {
+                    srcUri = new Uri(@"C:\Users\cameron.heilman\Documents\WR\GIT_JAPI\japi\JAPI\JAPI.App\Resources\check-mark-11-32.png");
+                    item.rowStatus = WPFRecrodStatus.Success;
+                }
+                else
+                {
+                    srcUri = (string.IsNullOrEmpty(updatedResultSet.internalError) && !updatedResultSet.status.Equals("Failed", StringComparison.OrdinalIgnoreCase))
+                        ? new Uri(@"C:\Users\cameron.heilman\Documents\WR\GIT_JAPI\japi\JAPI\JAPI.App\Resources\clock-8-32.png")
+                        : new Uri(@"C:\Users\cameron.heilman\Documents\WR\GIT_JAPI\japi\JAPI\JAPI.App\Resources\x-mark-3-32.png");
+
+                    item.rowStatus = (string.IsNullOrEmpty(updatedResultSet.internalError) && !updatedResultSet.status.Equals("Failed", StringComparison.OrdinalIgnoreCase))
+                        ? WPFRecrodStatus.InProgress
+                        : WPFRecrodStatus.Failed;
+                }
+
+                item.Image = new BitmapImage(srcUri);
+                item.resultSet = updatedResultSet;
+                executeReportsCollection[indexOf] = item;
+
+                //var nextCount = pollService.pollingSlots - executeReportsCollection.Count(x => x.rowStatus == WPFRecrodStatus.InProgress);
+                //if (nextCount > 0 && executeReportsCollection.Count(x => x.rowStatus == WPFRecrodStatus.Waiting) > 0)
+                //{
+                //    Task.Factory.StartNew(async () => 
+                //    {
+                //        await pollService.SendExecutionRequests(executeReportsCollection.Where(x => x.rowStatus == WPFRecrodStatus.Waiting), nextCount);
+                //    });
+                //}
             }
         }
 
         private void AllExecutionsCancelled()
         {
-            foreach (var reportUnit in executeReportsCollection)
-            {
-                reportUnit.status = "Cancelled";
-            }
+            //var newReportList = new List<ReportExecutionResultSet>();
+            //foreach (var reportUnit in executeReportsCollection)
+            //{
+            //    reportUnit.resultSet.status = "Cancelled";
+            //    newReportList.Add(reportUnit.resultSet);
+            //}
+
+            //executeReportsCollection.Clear();
+            //executeReportsCollection.AddRange(newReportList);
         }
 
-        private void ExecutionCancelled(ReportExecutionResultSet resultSet)
+        private void ExecutionCancelled(ReportExecutionResultSet cancelResultSet)
         {
-            var item = executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
+            var item = executeReportsCollection.FirstOrDefault(r => r.resultSet.guid == cancelResultSet.guid);
+            cancelResultSet.status = "Cancelled";
             if (item != null)
             {
-                item.status = "Cancelled";
+                var i = executeReportsCollection.IndexOf(item);
+                executeReportsCollection[i].resultSet = cancelResultSet;
             }
         }
 

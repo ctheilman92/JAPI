@@ -1,4 +1,5 @@
-﻿using JAPI.Repo;
+﻿using JAPI.App.Extensions;
+using JAPI.Repo;
 using JAPI.Repo.DTO;
 using JAPI.Repo.Extensions;
 using JAPI.Repo.Repositories;
@@ -11,6 +12,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace JAPI.App
 {
@@ -147,17 +150,22 @@ namespace JAPI.App
         private void BtnExecuteSelected_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.executeReportsCollection.Clear();
-            var execList = new List<ReportExecutionResultSet>();
+            var execList = new List<ReportExecutionWPFRecord>();
 
             if (ViewModel.selectedReportsCollection.Count > 0)
             {
                 var execService = new ReportExecutionService(RepositoryInjector.GetInjector<JAPISessionRepository>());
                 execList = ViewModel.selectedReportsCollection.Select(r =>
-                    new ReportExecutionResultSet
+                    new ReportExecutionWPFRecord
                     {
-                        guid = Guid.NewGuid(),
-                        resource = r,
-                        status = "waiting"
+                        Image = new BitmapImage(new Uri (@"C:\Users\cameron.heilman\Documents\WR\GIT_JAPI\japi\JAPI\JAPI.App\Resources\clock-8-32.png")),
+                        rowStatus = WPFRecrodStatus.Waiting,
+                        resultSet = new ReportExecutionResultSet
+                        {
+                            guid = Guid.NewGuid(),
+                            resource = r,
+                            status = "waiting",
+                        }
                     }).ToList();
 
                 ViewModel.executeReportsCollection.AddRange(execList);
@@ -178,42 +186,5 @@ namespace JAPI.App
             throw new NotImplementedException();
         }
 
-        #region SIGNALR CLIENT CALLBACKS
-
-        private void UpdateExecutionSet(ReportExecutionResultSet resultSet)
-        {
-            var item = ViewModel.executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
-            if (item != null)
-            {
-                var i = ViewModel.executeReportsCollection.IndexOf(item);
-                ViewModel.executeReportsCollection[i] = resultSet;
-            }
-        }
-
-        private void AllExecutionsCancelled()
-        {
-            var newReportList = new List<ReportExecutionResultSet>();
-            foreach (var reportUnit in ViewModel.executeReportsCollection)
-            {
-                reportUnit.status = "Cancelled";
-                newReportList.Add(reportUnit);
-            }
-
-            ViewModel.executeReportsCollection.Clear();
-            ViewModel.executeReportsCollection.AddRange(newReportList);
-        }
-
-        private void ExecutionCancelled(ReportExecutionResultSet resultSet)
-        {
-            var item = ViewModel.executeReportsCollection.FirstOrDefault(r => r.guid == resultSet.guid);
-            resultSet.status = "Cancelled";
-            if (item != null)
-            {
-                var i = ViewModel.executeReportsCollection.IndexOf(item);
-                ViewModel.executeReportsCollection[i] = resultSet;
-            }
-        }
-
-        #endregion
     }
 }

@@ -1,10 +1,9 @@
-﻿using JAPI.Repo;
-using JAPI.Repo.DTO;
+﻿using JAPI.App.Extensions;
+using JAPI.Repo;
 using Microsoft.AspNet.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace JAPI.App
@@ -19,7 +18,7 @@ namespace JAPI.App
         public event Action ConnectionReconnected;
         public event Action ConnectionClosed;
 
-
+        public int pollingSlots = 5;
         public IHubProxy hubProxy;
         private HubConnection hubConnection;
         private string url = "http://localhost:4444/jpollr";
@@ -42,27 +41,22 @@ namespace JAPI.App
         }
 
         #region SIGNALR HUB INVOCATIONS
-        public async Task SendExecutionRequests(List<ReportExecutionResultSet> executeRequests, int batch = 5)
+        public async Task SendExecutionRequests(IEnumerable<ReportExecutionWPFRecord> executeRequests, int batch = 5)
         {
             foreach (var request in executeRequests)
             {
-                await SendExecutionRequest(request);
+                await SendExecutionRequest(request.resultSet);
             }
         }
 
-        public async Task SendExecutionRequest(ReportExecutionResultSet executeRequest)
+        public Task SendExecutionRequest(ReportExecutionResultSet executeRequest)
         {
-            await hubProxy.Invoke("BeginRequestExecution", executeRequest);
+            return hubProxy.Invoke("BeginRequestExecution", executeRequest);
         }
 
-        public async Task SendExecutionSingleRequest(Resource resource)
+        public Task CancelRequest(ReportExecutionResultSet executeRequest)
         {
-            await hubProxy.Invoke("BeginRequestExecutions", new List<Resource>() { resource });
-        }
-
-        public async Task CancelRequest(ReportExecutionResultSet executeRequest)
-        {
-            await hubProxy.Invoke("CancelRequestExecution", executeRequest);
+            return hubProxy.Invoke("CancelRequestExecution", executeRequest);
         }
 
         private void Disconnected()
